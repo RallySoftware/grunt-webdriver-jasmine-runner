@@ -67,6 +67,8 @@ grunt.initConfig
       seleniumJar: "#{__dirname}/lib/selenium-server-standalone-2.31.0.jar" # Only specified when starting a local selenium server
       seleniumServerHost: undefined # Only specified when running tests on a remote selenium server
       seleniumServerPort: 4444
+      seleniumServerArgs: [] # Only specified when starting a local selenium server
+      seleniumServerJvmArgs: [] # Only specified when starting a local selenium server
       browser: 'chrome'
       testServer: 'localhost'
       testServerPort: 8000
@@ -92,6 +94,18 @@ The hostname of a remote selenium server to use. If specified, a selenium server
 - Default value: `4444`
 
 The port number to use for the local selenium server when running locally or the remote selenium server when using a remote server.
+
+#### options.seleniumServerArgs
+- Type: `Array`
+- Default value: `[]`
+
+Arguments to pass to the Selenium Server java command.
+
+#### options.seleniumServerJvmArgs
+- Type: `Array`
+- Default value: `[]`
+
+JVM arguments to pass to the Selenium Server java command. (e.g. ['-Xmx256M'])
 
 #### options.browser
 - Type: `String`
