@@ -8,10 +8,9 @@ module.exports = (grunt) ->
 
     grunt.registerMultiTask 'webdriver_jasmine_runner', 'Runs a jasmine test with webdriver.', ->
         options = @options
-            seleniumJar: __dirname + '/lib/selenium-server-standalone-2.33.0.jar'
+            seleniumJar: __dirname + '/lib/selenium-server-standalone-2.34.0.jar'
             seleniumServerPort: 4444
             seleniumServerArgs: []
-            seleniumServerJvmArgs: []
             browser: 'chrome'
             testServer: 'localhost'
             testServerPort: 8000
@@ -31,11 +30,12 @@ module.exports = (grunt) ->
             serverAddress = "http://#{options.seleniumServerHost}:#{options.seleniumServerPort}/wd/hub"
             serverConnection serverAddress, options, done
         else
-            server = new remote.SeleniumServer
-                jar: options.seleniumJar
+            server = new remote.SeleniumServer(
+                options.seleniumJar
+            ,
                 port: options.seleniumServerPort
-                jvmArgs: options.seleniumServerJvmArgs
                 args: options.seleniumServerArgs
+            )
 
             grunt.log.writeln "Starting webdriver server at http://localhost:#{options.seleniumServerPort}"
             server.start()
@@ -60,10 +60,10 @@ module.exports = (grunt) ->
         outputPasses = 0
         outputFailures = 0
 
-        driver.session_.then (sessionData) ->
+        driver.getSession().then (session) ->
             runJasmineTests = webdriver.promise.createFlow (flow)->
                 flow.execute ->
-                    driver.get(getWebServerUrl(sessionData.id)).then ->
+                    driver.get(getWebServerUrl(session.getId())).then ->
                         startTime = new Date()
                         # This section parses the jasmine so that the results can be written to the console.
                         driver.wait ->
