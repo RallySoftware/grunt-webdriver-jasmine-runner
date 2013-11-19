@@ -8,9 +8,10 @@ module.exports = (grunt) ->
 
     grunt.registerMultiTask 'webdriver_jasmine_runner', 'Runs a jasmine test with webdriver.', ->
         options = @options
-            seleniumJar: __dirname + '/lib/selenium-server-standalone-2.35.0.jar'
+            seleniumJar: __dirname + '/lib/selenium-server-standalone-2.37.0.jar'
             seleniumServerPort: 4444
             seleniumServerArgs: []
+            seleniumServerJvmArgs: []
             browser: 'chrome'
             testServer: 'localhost'
             testServerPort: 8000
@@ -32,6 +33,7 @@ module.exports = (grunt) ->
         else
             server = new remote.SeleniumServer options.seleniumJar,
                 port: options.seleniumServerPort
+                jvmArgs: options.seleniumServerJvmArgs
                 args: options.seleniumServerArgs
 
             grunt.log.writeln "Starting webdriver server at http://localhost:#{options.seleniumServerPort}"
@@ -46,9 +48,9 @@ module.exports = (grunt) ->
             "#{testUrl}?wdurl=#{encodeURIComponent(serverAddress)}&wdsid=#{session}&useWebdriver=true&ignoreSloppyTests=#{options.ignoreSloppyTests}"
 
         driver = new webdriver.Builder()
-            .usingServer(serverAddress)
-            .withCapabilities({'browserName': options.browser})
-            .build()
+        .usingServer(serverAddress)
+        .withCapabilities({'browserName': options.browser})
+        .build()
 
         grunt.log.writeln "Connecting to webdriver server at #{serverAddress}."
         grunt.log.writeln "Running Jasmine tests at #{testUrl} with #{options.browser}."
@@ -57,9 +59,8 @@ module.exports = (grunt) ->
         outputDots = 0
         outputPasses = 0
         outputFailures = 0
-        
+
         driver.getSession().then (session) ->
-            
             getAllTestResultsViaUnderscore = (outputDots) ->
                 _.compact(
                     _.map(
@@ -67,11 +68,12 @@ module.exports = (grunt) ->
                             _.rest(document.querySelectorAll(".symbolSummary li"), outputDots),
                             'className'
                         ),
-                        (status) ->
-                            switch status
-                                when 'passed' then '.'
-                                when 'failed' then 'F'
-                                else null
+                    (status) ->
+                        switch status
+                            when 'passed' then '.'
+                            when 'failed' then 'F'
+                            else
+                                null
                     )
                 ).join('')
 
@@ -85,7 +87,7 @@ module.exports = (grunt) ->
                         toOutput = Math.min(notYetOutput, 100)
                         toOutputStr = results.slice(outputStart, outputStart + toOutput)
                         outputFailures += toOutputStr.split('F').length - 1
-                        
+
                         notYetOutput -= toOutput
                         outputDots += toOutput
                         outputStart += toOutput
@@ -108,7 +110,7 @@ module.exports = (grunt) ->
                         while (pendingPasses + pendingFailures) > dotsThreshold
                             failuresToOutput = Math.min(pendingFailures, 100)
                             passesToOutput = Math.min(100 - failuresToOutput, pendingPasses)
-                            
+
                             pendingPasses -= passesToOutput
                             pendingFailures -= failuresToOutput
                             outputPasses += passesToOutput
@@ -138,7 +140,8 @@ module.exports = (grunt) ->
                                 driver.wait ->
                                     statusFn(numTests, symbolSummaryElement).then (isPending) ->
                                         if isPending
-                                            webdriver.promise.delayed(900).then -> !isPending
+                                            webdriver.promise.delayed(900).then ->
+                                                !isPending
                                         else
                                             !isPending
 
