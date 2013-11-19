@@ -1,45 +1,44 @@
 {
-    "name": "grunt-webdriver-jasmine-runner",
-    "description": "A grunt plugin that runs jasmine tests using webdriver.",
-    "version": "0.1.9",
-    "homepage": "https://github.com/RallySoftware/grunt-webdriver-jasmine-runner",
-    "author": {
-        "name": "Ken Heutmaker",
-        "email": "kheutmaker@rallydev.com",
-        "url": "bgok"
-    },
-    "contributors": [
-        {
-            "name": "Matt Parrish",
-            "email": "matt.r.parrish@gmail.com"
-        }
-    ],
-    "repository": {
-        "type": "git",
-        "url": "https://github.com/RallySoftware/grunt-webdriver-jasmine-runner"
-    },
-    "bugs": {
-        "url": "https://github.com/RallySoftware/grunt-webdriver-jasmine-runner/issues"
-    },
-    "licenses": [
-        {
-            "type": "MIT",
-            "url": "https://github.com/RallySoftware/grunt-webdriver-jasmine-runner/blob/master/MIT-LICENSE.md"
-        }
-    ],
-    "main": "Gruntfile.coffee",
-    "engines": {
-        "node": ">= 0.10.0"
-    },
-    "dependencies": {
-        "selenium-webdriver": "2.37.0"
-    },
-    "peerDependencies": {
-        "grunt": ">= 0.4.0"
-    },
-    "keywords": [
-        "gruntplugin",
-        "webdriver",
-        "jasmine"
-    ]
+  "name": "grunt-webdriver-jasmine-runner",
+  "description": "A grunt plugin that runs jasmine tests using webdriver.",
+  "version": "0.1.7",
+  "homepage": "https://github.com/RallySoftware/grunt-webdriver-jasmine-runner",
+  "author": {
+    "name": "Ken Heutmaker (bgok)",
+    "email": "kheutmaker@rallydev.com"
+  },
+  "contributors": [
+    {
+      "name": "Matt Parrish",
+      "email": "matt.r.parrish@gmail.com"
+    }
+  ],
+  "repository": {
+    "type": "git",
+    "url": "https://github.com/RallySoftware/grunt-webdriver-jasmine-runner"
+  },
+  "bugs": {
+    "url": "https://github.com/RallySoftware/grunt-webdriver-jasmine-runner/issues"
+  },
+  "licenses": [
+    {
+      "type": "MIT",
+      "url": "https://github.com/RallySoftware/grunt-webdriver-jasmine-runner/blob/master/MIT-LICENSE.md"
+    }
+  ],
+  "main": "Gruntfile.coffee",
+  "engines": {
+    "node": ">= 0.10.0"
+  },
+  "dependencies": {
+      "selenium-webdriver": "2.35.0"
+  },
+  "peerDependencies": {
+    "grunt": ">= 0.4.0"
+  },
+  "keywords": [
+    "gruntplugin",
+    "webdriver",
+    "jasmine"
+  ]
 }
