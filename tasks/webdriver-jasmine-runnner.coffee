@@ -35,12 +35,12 @@ module.exports = (grunt) ->
             serverConnection server, options
         else
             localSeleniumServer options
-    
+
     cleanUp = (resultData, done) ->
         resultData.driver?.quit().then ->
             finish = ->
                 if resultData.error then throw resultData.error else done(resultData.allTestsPassed)
-                   
+
             if resultData.server then resultData.server.stop().then(finish) else finish()
 
     localSeleniumServer = (options) ->
@@ -84,7 +84,7 @@ module.exports = (grunt) ->
         outputFailures = 0
 
         driver.getSession().then (session) ->
-        
+
             getAllTestResultsViaUnderscore = (outputDots) ->
                 _.compact(
                     _.map(
@@ -153,7 +153,7 @@ module.exports = (grunt) ->
                         driver.wait ->
                             driver.isElementPresent(webdriver.By.className('symbolSummary')).then (symbolSummaryFound)->
                                 symbolSummaryFound
-                        , 5000
+                        , 20000
                         driver.findElement(webdriver.By.className('symbolSummary')).then (symbolSummaryElement) ->
                             driver.executeScript('return {numTests: document.querySelectorAll(".symbolSummary li").length, underscore: !!window._}').then (summary) ->
                                 numTests = summary.numTests
@@ -171,7 +171,7 @@ module.exports = (grunt) ->
                                 driver.wait ->
                                     driver.isElementPresent(webdriver.By.id('details')).then (isPresent) ->
                                         isPresent
-                                , 6000
+                                , 20000
                                 driver.findElement(webdriver.By.id('details')).then (detailsElement) ->
                                     grunt.log.writeln "Done running all tests. Suite took #{(new Date() - startTime) / 1000} seconds."
                                     detailsElement.isElementPresent(webdriver.By.className('failed')).then (hasFailures) ->
@@ -185,7 +185,7 @@ module.exports = (grunt) ->
                                             grunt.log.writeln 'All ' + "#{numTests}".cyan + ' tests passed!'
 
             runJasmineTests.then ->
-                result.fulfill resultData 
+                result.fulfill resultData
 
         .then null, (err) ->
             resultData.error = err
