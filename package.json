@@ -1,7 +1,7 @@
 {
   "name": "grunt-webdriver-jasmine-runner",
   "description": "A grunt plugin that runs jasmine tests using webdriver.",
-  "version": "0.3.0",
+  "version": "0.3.1",
   "homepage": "https://github.com/RallySoftware/grunt-webdriver-jasmine-runner",
   "author": {
     "name": "Ken Heutmaker",
