@@ -6,7 +6,7 @@ A grunt plugin that runs jasmine tests using webdriver.
 This plugin requires Grunt `~0.4.0`
 
 If you haven't used [Grunt](http://gruntjs.com/) before, be sure to check out
-the [Getting Started](http://gruntjs.com/getting-started) guide, as it explains how to create
+the [Getting Started](http://gruntjs.com/getting-started) guide, as it explains how to create 
 a [Gruntfile](http://gruntjs.com/sample-gruntfile) as well as install and use Grunt plugins.
 
 Once you're familiar with that process, you may install this plugin with this command:
@@ -48,7 +48,7 @@ The driver for firefox is included in the plugin.
 ## The "webdriver_jasmine_runner" task
 
 ### Overview
-In your project's Gruntfile, add a section named `webdriver_jasmine_runner` to the data object passed
+In your project's Gruntfile, add a section named `webdriver_jasmine_runner` to the data object passed 
 into `grunt.initConfig()`.
 
 ```coffee
@@ -79,7 +79,7 @@ grunt.initConfig
 
 #### options.seleniumJar
 - Type: `String`
-- Default value: `"#{__dirname}/lib/selenium-server-standalone-2.42.2.jar"`
+- Default value: `"#{__dirname}/lib/selenium-server-standalone-2.39.0.jar"`
 
 The location of the selenium standalone server jar.
 
@@ -167,10 +167,10 @@ of any failing tests to the Grunt log.
 ### Usage Examples
 
 #### Default Options
-This task isn't very useful by itself. A usual use case if to configure webdriver_jasmine_runner in a
+This task isn't very useful by itself. A usual use case if to configure webdriver_jasmine_runner in a 
 grunt.initConfig() call and combine it with other tasks with grunt.registerTask().
 
-In this example, we start a connect server running the app.  The jasmine:build task also creates an appropriate
+In this example, we start a connect server running the app.  The jasmine:build task also creates an appropriate 
 _SpecRunner.html file with the specs to be run.
 
 ```coffee
