@@ -16,9 +16,11 @@ module.exports = (grunt) ->
             testServerPort: 8000
             testFile: '_SpecRunner.html'
             ignoreSloppyTests: false
+            symbolSummaryTimeout: 20000
             allTestsTimeout: 30 * 60 * 1000
 
         options.browser = grunt.option('browser') || options.browser
+        options.symbolSummaryTimeout = grunt.option('symbolSummaryTimeout') || options.symbolSummaryTimeout
         options.ignoreSloppyTests = grunt.option('ignoreSloppyTests') || options.ignoreSloppyTests
 
         if not fs.existsSync options.seleniumJar
@@ -153,7 +155,7 @@ module.exports = (grunt) ->
                         driver.wait ->
                             driver.isElementPresent(webdriver.By.className('symbolSummary')).then (symbolSummaryFound)->
                                 symbolSummaryFound
-                        , 20000
+                        , options.symbolSummaryTimeout
                         driver.findElement(webdriver.By.className('symbolSummary')).then (symbolSummaryElement) ->
                             driver.executeScript('return {numTests: document.querySelectorAll(".symbolSummary li").length, underscore: !!window._}').then (summary) ->
                                 numTests = summary.numTests

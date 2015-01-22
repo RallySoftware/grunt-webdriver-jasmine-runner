@@ -140,6 +140,12 @@ The file to load that runs the jasmine tests.
 
 Time in milliseconds to wait for all of the tests to finish running.
 
+#### options.symbolSummaryTimeout
+- Type: `Number`
+- Default value: `20000` (20 seconds)
+
+Time in milliseconds to wait for the symbol summary to appear.
+
 ### Command-Line Options
 
 #### --browser=[chrome|firefox|internet explorer|...]
