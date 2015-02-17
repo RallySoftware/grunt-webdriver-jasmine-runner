@@ -28,7 +28,7 @@ module.exports = (grunt) ->
 
         done = @async()
 
-        runTests(options).addBoth (resultData) ->
+        runTests(options).thenFinally (resultData) ->
             cleanUp resultData, done
 
     runTests = (options) ->
