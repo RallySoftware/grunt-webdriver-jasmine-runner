@@ -17,11 +17,13 @@ module.exports = (grunt) ->
             testFile: '_SpecRunner.html'
             ignoreSloppyTests: false
             symbolSummaryTimeout: 20000
+            serializeErrors: false
             allTestsTimeout: 30 * 60 * 1000
 
         options.browser = grunt.option('browser') || options.browser
         options.symbolSummaryTimeout = grunt.option('symbolSummaryTimeout') || options.symbolSummaryTimeout
         options.ignoreSloppyTests = grunt.option('ignoreSloppyTests') || options.ignoreSloppyTests
+        options.serializeErrors = grunt.option('serializeErrors') || options.serializeErrors
 
         if not fs.existsSync options.seleniumJar
             throw Error "The specified jar does not exist: #{options.seleniumJar}"
@@ -39,7 +41,7 @@ module.exports = (grunt) ->
             localSeleniumServer options
 
     cleanUp = (resultData, done) ->
-        resultData.driver?.quit().then ->
+        resultData?.driver?.quit().then ->
             finish = ->
                 if resultData.error then throw resultData.error else done(resultData.allTestsPassed)
 
@@ -190,6 +192,7 @@ module.exports = (grunt) ->
                 result.fulfill resultData
 
         .then null, (err) ->
+            grunt.log.writeln JSON.stringify(err, null, '\t') if err && options.serializeErrors
             resultData.error = err
             result.reject resultData
 
