@@ -19,11 +19,13 @@ module.exports = (grunt) ->
             symbolSummaryTimeout: 20000
             serializeErrors: false
             allTestsTimeout: 30 * 60 * 1000
+            printTitles: false
 
         options.browser = grunt.option('browser') || options.browser
         options.symbolSummaryTimeout = grunt.option('symbolSummaryTimeout') || options.symbolSummaryTimeout
         options.ignoreSloppyTests = grunt.option('ignoreSloppyTests') || options.ignoreSloppyTests
         options.serializeErrors = grunt.option('serializeErrors') || options.serializeErrors
+        options.printTitles = grunt.option('printTitles') || options.printTitles
 
         if not fs.existsSync options.seleniumJar
             throw Error "The specified jar does not exist: #{options.seleniumJar}"
@@ -153,6 +155,16 @@ module.exports = (grunt) ->
                 flow.execute ->
                     driver.get(getWebServerUrl(session.getId())).then ->
                         startTime = new Date()
+                        lastTitle = ''
+                        if options.printTitles
+                          i = setInterval((=>
+                              driver.getTitle().then (title) ->
+                                title = title.substring(0, title.indexOf(' '))
+                                if title != lastTitle
+                                  lastTitle = title
+                                  grunt.log.write "Running Jasmine tests for '#{title}'"
+
+                          ), 250)
                         # This section parses the jasmine so that the results can be written to the console.
                         driver.wait ->
                             driver.isElementPresent(webdriver.By.className('symbolSummary')).then (symbolSummaryFound)->

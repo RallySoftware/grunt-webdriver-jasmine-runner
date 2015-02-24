@@ -163,6 +163,10 @@ debugging of failing tests.
 The selenium server added a parameter to the query string of url passed to the browser to tell Jasmine to disable
 verification of proper tests cleanup.
 
+#### --printTitles=true
+
+Generates output of the spec title as test are run. e.g. Running Jasmine tests for '#{title}'
+
 ### Output
 
 This task:
