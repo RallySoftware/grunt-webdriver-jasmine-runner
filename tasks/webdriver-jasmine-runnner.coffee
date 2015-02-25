@@ -162,9 +162,9 @@ module.exports = (grunt) ->
                                 title = title.substring(0, title.indexOf(' '))
                                 if title != lastTitle
                                   lastTitle = title
-                                  grunt.log.write "Running Jasmine tests for '#{title}'"
+                                  grunt.log.write "Running tests for '#{title}'"
 
-                          ), 250)
+                          ), 50)
                         # This section parses the jasmine so that the results can be written to the console.
                         driver.wait ->
                             driver.isElementPresent(webdriver.By.className('symbolSummary')).then (symbolSummaryFound)->
@@ -204,7 +204,7 @@ module.exports = (grunt) ->
                 result.fulfill resultData
 
         .then null, (err) ->
-            grunt.log.writeln JSON.stringify(err, null, '\t') if err && options.serializeErrors
+            grunt.log.writeln JSON.stringify('SerializedError:' + err, null, '\t') if err && options.serializeErrors
             resultData.error = err
             result.reject resultData
 
