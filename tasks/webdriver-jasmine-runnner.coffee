@@ -158,13 +158,15 @@ module.exports = (grunt) ->
                         lastTitle = ''
                         if options.printTitles
                           i = setInterval((=>
-                              driver.getTitle().then (title) ->
+                              driver.getTitle()
+                              .then (title) ->
                                 title = title.substring(0, title.indexOf(' '))
                                 if title != lastTitle
                                   lastTitle = title
                                   grunt.log.write "Running tests for '#{title}'"
-
-                          ), 50)
+                              .thenCatch (ex) ->
+                                  #noop
+                          ), 100)
                         # This section parses the jasmine so that the results can be written to the console.
                         driver.wait ->
                             driver.isElementPresent(webdriver.By.className('symbolSummary')).then (symbolSummaryFound)->
