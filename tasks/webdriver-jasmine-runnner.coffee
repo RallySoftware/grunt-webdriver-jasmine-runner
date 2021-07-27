@@ -5,7 +5,7 @@ module.exports = (grunt) ->
 
     webdriver = require 'selenium-webdriver'
     remote = require 'selenium-webdriver/remote'
-
+    chrome = require 'chromedriver'
     grunt.registerMultiTask 'webdriver_jasmine_runner', 'Runs a jasmine test with webdriver.', ->
         options = @options
             seleniumJar: __dirname + '/lib/selenium-server-standalone-2.44.0.jar'
@@ -18,12 +18,12 @@ module.exports = (grunt) ->
             ignoreSloppyTests: false
             symbolSummaryTimeout: 20000
             serializeErrors: false
-            allTestsTimeout: 30 * 60 * 1000
+            allTestsTimeout: 39000
             printTitles: false
 
         options.browser = grunt.option('browser') || options.browser
-        options.symbolSummaryTimeout = grunt.option('symbolSummaryTimeout') || options.symbolSummaryTimeout
-        options.ignoreSloppyTests = grunt.option('ignoreSloppyTests') || options.ignoreSloppyTests
+        options.symbolSummaryTimeout =options.symbolSummaryTimeout
+        options.ignoreSloppyTests =  options.ignoreSloppyTests
         options.serializeErrors = grunt.option('serializeErrors') || options.serializeErrors
         options.printTitles = grunt.option('printTitles') || options.printTitles
 
@@ -32,8 +32,7 @@ module.exports = (grunt) ->
 
         done = @async()
 
-        runTests(options).thenFinally (resultData) ->
-            cleanUp resultData, done
+        runTests(options)
 
     runTests = (options) ->
         if options.seleniumServerHost? and options.seleniumServerPort?
@@ -51,8 +50,8 @@ module.exports = (grunt) ->
 
     localSeleniumServer = (options) ->
         server = new remote.SeleniumServer options.seleniumJar,
-                        jvmArgs: options.seleniumServerJvmArgs
-                        args: options.seleniumServerArgs
+            jvmArgs: options.seleniumServerJvmArgs
+            args: options.seleniumServerArgs
 
         server.start().then (serverAddress) ->
             grunt.log.writeln "Started webdriver server at #{serverAddress}"
@@ -61,9 +60,12 @@ module.exports = (grunt) ->
                 resultData.server = server
                 resolveFn.call result, resultData
 
+
             serverConnection(serverAddress, options).then (resultData) ->
                 resolveResult result.fulfill, resultData
-            .then null, (resultData) ->
+                .then null, (resultData) ->
+                console.dir(resultData)
+                grunt.verbose.writeln JSON.stringify('SerializedError:' + resultData, null, '\t')
                 resolveResult result.reject, resultData
 
         result = webdriver.promise.defer()
@@ -93,17 +95,17 @@ module.exports = (grunt) ->
 
             getAllTestResultsViaUnderscore = (outputDots) ->
                 _.compact(
-                    _.map(
-                        _.pluck(
-                            _.rest(document.querySelectorAll(".symbolSummary li"), outputDots),
-                            'className'
-                        ),
-                        (status) ->
-                            switch status
-                                when 'passed' then '.'
-                                when 'failed' then 'F'
-                                else null
-                    )
+                  _.map(
+                    _.pluck(
+                      _.rest(document.querySelectorAll(".symbolSummary li"), outputDots),
+                      'className'
+                    ),
+                      (status) ->
+                          switch status
+                              when 'passed' then '.'
+                              when 'failed' then 'F'
+                              else null
+                  )
                 ).join('')
 
             outputStatusUntilDoneWithUnderscore = (numTests, symbolSummaryElement) ->
@@ -126,14 +128,14 @@ module.exports = (grunt) ->
                     isPendingPresent
 
             outputStatusUntilDoneWithoutUnderscore = (numTests, symbolSummaryElement) ->
-                symbolSummaryElement.isElementPresent(webdriver.By.className('pending')).then (isPendingPresent) ->
+                symbolSummaryElement.findElements(webdriver.By.className('pending')).then (isPendingPresent) ->
                     webdriver.promise.fullyResolved(
-                        [
-                            driver.executeScript('return document.querySelectorAll(".symbolSummary .passed").length').then (passedElements) ->
-                                pendingFailureDots = passedElements - outputPasses
-                            driver.executeScript('return document.querySelectorAll(".symbolSummary .failed").length').then (failedElements) ->
-                                pendingFailureDots = failedElements - outputFailures
-                        ]
+                      [
+                          driver.executeScript('return document.querySelectorAll(".jasmine-symbol-summary .jasmine-passed").length').then (passedElements) ->
+                              pendingFailureDots = passedElements - outputPasses
+                          driver.executeScript('return document.querySelectorAll(".jasmine-symbol-summary .jasmine-failed").length').then (failedElements) ->
+                              pendingFailureDots = failedElements - outputFailures
+                      ]
                     ).then ([pendingPasses, pendingFailures]) ->
                         dotsThreshold = if isPendingPresent then 100 else 0
                         while (pendingPasses + pendingFailures) > dotsThreshold
@@ -157,44 +159,46 @@ module.exports = (grunt) ->
                         startTime = new Date()
                         lastTitle = ''
                         if options.printTitles
-                          i = setInterval((=>
-                              driver.getTitle()
-                              .then (title) ->
-                                title = title.substring(0, title.indexOf(' '))
-                                if title != lastTitle
-                                  lastTitle = title
-                                  grunt.log.write "Running tests for '#{title}'"
-                              .thenCatch (ex) ->
-                                  #noop
-                          ), 100)
+                            i = setInterval((=>
+                                driver.getTitle()
+                                    .then (title) ->
+                                    title = title.substring(0, title.indexOf(' '))
+                                    if title != lastTitle
+                                        lastTitle = title
+                                        grunt.log.write "Running tests for '#{title}'"
+                                    .catch (ex) ->
+#noop
+                            ), 100)
                         # This section parses the jasmine so that the results can be written to the console.
-                        driver.wait ->
-                            driver.isElementPresent(webdriver.By.className('symbolSummary')).then (symbolSummaryFound)->
-                                symbolSummaryFound
-                        , options.symbolSummaryTimeout
-                        driver.findElement(webdriver.By.className('symbolSummary')).then (symbolSummaryElement) ->
-                            driver.executeScript('return {numTests: document.querySelectorAll(".symbolSummary li").length, underscore: !!window._}').then (summary) ->
+                        driver.wait webdriver.until.elementLocated(webdriver.By.className('jasmine-duration'))
+
+                        driver.findElement(webdriver.By.className('jasmine-symbol-summary')).then (symbolSummaryElement) ->
+                            grunt.log.writeln "symbolSummaryElement #{symbolSummaryElement}"
+                            driver.executeScript('return {numTests: document.querySelectorAll(".jasmine-symbol-summary li").length, underscore: !!window._}').then (summary) ->
+                                console.dir summary
                                 numTests = summary.numTests
-                                hasUnderscore = summary.underscore
+                                hasUnderscore = false
                                 grunt.log.writeln 'Test page loaded.  Running ' + "#{numTests}".cyan + ' tests...'
                                 statusFn = (if hasUnderscore then outputStatusUntilDoneWithUnderscore else outputStatusUntilDoneWithoutUnderscore)
-                                driver.wait ->
-                                    statusFn(numTests, symbolSummaryElement).then (isPending) ->
-                                        if isPending
-                                            webdriver.promise.delayed(900).then -> !isPending
-                                        else
-                                            !isPending
 
-                                , options.allTestsTimeout
-                                driver.wait ->
-                                    driver.isElementPresent(webdriver.By.id('details')).then (isPresent) ->
-                                        isPresent
-                                , 20000
-                                driver.findElement(webdriver.By.id('details')).then (detailsElement) ->
-                                    grunt.log.writeln "Done running all tests. Suite took #{(new Date() - startTime) / 1000} seconds."
-                                    detailsElement.isElementPresent(webdriver.By.className('failed')).then (hasFailures) ->
-                                        if (hasFailures)
-                                            detailsElement.findElements(webdriver.By.className('failed')).then (failedElements) ->
+                                #                                driver.wait ->
+                                #                                  statusFn(numTests, symbolSummaryElement).then (isPending) ->
+                                #                                      if isPending
+                                #                                          webdriver.promise.delayed(900).then -> !isPending
+                                #                                      else
+                                #                                          !isPending
+                                #
+                                #                                , options.allTestsTimeout
+                                #                                driver.wait ->
+                                #                                    driver.isElementPresent(webdriver.By.className('jasmine-symbol-summary')).then (isPresent) ->
+                                #                                        isPresent
+                                #                                , 20000
+                                driver.findElement(webdriver.By.className('jasmine-symbol-summary')).then (detailsElement) ->
+                                    grunt.log.writeln "->Done running all tests. Suite took #{(new Date() - startTime) / 1000} seconds."
+                                    driver.findElements(webdriver.By.css('.jasmine-symbol-summary .jasmine-failed')).then (hasFailures) ->
+                                        grunt.log.writeln "hasFailures #{hasFailures.length}"
+                                        if (hasFailures.length > 0)
+                                            driver.findElements(webdriver.By.css('.jasmine-symbol-summary .jasmine-failed')).then (failedElements) ->
                                                 grunt.log.writeln "#{failedElements.length} of #{numTests} tests failed:".red
                                                 webdriver.promise.fullyResolved(failedElement.getText() for failedElement in failedElements).then (failureTexts) ->
                                                     grunt.log.writeln (failureText.yellow for failureText in failureTexts).join("\n\n")
@@ -205,9 +209,10 @@ module.exports = (grunt) ->
             runJasmineTests.then ->
                 result.fulfill resultData
 
-        .then null, (err) ->
+            .then null, (err) ->
             grunt.log.writeln JSON.stringify('SerializedError:' + err, null, '\t') if err && options.serializeErrors
             resultData.error = err
             result.reject resultData
 
         result = webdriver.promise.defer()
+        return result.promise
